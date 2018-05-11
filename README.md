@@ -11,8 +11,9 @@ This program can efficiently include and exclude directories from a directory tr
 
 '--delete', '-d' - Folder to delete, multiple=True
 
-'--root', '-r' - Start folder
-'--file','-f' - File with directories of folders ( 1st line = root). Example of file:
+'--root', '-r' - Start folder  
+'--file','-f' - File with directories of folders ( 1st line = root)  
+Example of file:
 ```
    r PATH //root
    + PATH //include
