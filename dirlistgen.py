@@ -11,22 +11,40 @@ roots=set()
 @click.option('--add', '-a', help='Folder to add', multiple=True)
 @click.option('--delete', '-d', help='Folder to delete', multiple=True)
 @click.option('--root', '-r', help='Start folder')
-def processing(add, delete,root):
+@click.option('--file', '-f', help='File with folders and operations')
+def processing(add, delete,root,file):
     global rootpath
-    rootpath=root
+    a = list()
+    d = list()
+    if file:
+        with open(file, 'r',encoding='utf-8') as data:
+            for line in data:
+                line=line.replace('\n','')
+                if line[0] == 'r':
+                    rootpath = line[2:]
+                if line[0] == '+':
+                    a.append(line[2:])
+                if line[0] == '-':
+                    d.append(line[2:])
+    else:
+        rootpath=root
+        a=list(add)
+        d=list(delete)
     dive_into_folder(rootpath, pattern, None)
-    for folder in add:
+    pre_processing(a,d)
+    print_res(rootpath)
+
+def pre_processing(a,d):
+    for folder in a:
         roots.add(folder)
         addition(folder)
-    for folder in delete:
+    for folder in d:
         if trie[folder].state_of_add != False:
             prep_for_deleting(folder)
             key_for_node = re.split(pattern, folder)[-1].__len__()
             deleting(rootpath, folder[:-1 - key_for_node])
         else:
-            raise NotInListOfFoldersToProcessing("no such folder")
-    print_res(rootpath)
-
+            raise NotInListOfFoldersToProcessing('no such folder{}'.format(folder))
 
 state_of_addition = [None]
 
@@ -69,14 +87,15 @@ def prep_for_deleting(foldpath):
 
 def deleting(root, foldpath):
     '''Change state of parents of '-' node'''
-    if trie[foldpath].state_of_add !=False:
-        trie[foldpath].child_del = True
-        key_for_node = re.split(pattern, foldpath)[-1].__len__()
-        foldpath = foldpath[:-1 - key_for_node]
-        if foldpath != root:
-            deleting(root, foldpath)
-        if foldpath == root and trie[foldpath].state_of_add != False:
+    if(len(foldpath)>=len(root)):
+        if trie[foldpath].state_of_add !=False:
             trie[foldpath].child_del = True
+            key_for_node = re.split(pattern, foldpath)[-1].__len__()
+            foldpath = foldpath[:-1 - key_for_node]
+            if foldpath != root:
+                deleting(root, foldpath)
+            if foldpath == root and trie[foldpath].state_of_add != False:
+                trie[foldpath].child_del = True
 
 
 def addition(fpath):
@@ -136,7 +155,8 @@ def print_res(fpath):
     detection_of_nodes_in_lowest_lvl(fpath)
     for r in roots:
         trie[r].state_of_add=True
-    print(list(res_nodes))
+    for r_n in res_nodes:
+        print(r_n)
 
 if __name__ == '__main__':
     trie = datrie.Trie(ranges=[(u'\x00', u'\xff')])
