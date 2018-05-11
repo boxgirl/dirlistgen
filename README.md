@@ -14,7 +14,8 @@ This program can efficiently include and exclude directories from a directory tr
 '--root', '-r' - Start folder
 '--file','-f' - File with directories of folders ( 1st line = root) 
 Example of file:
-```r PATH //root
+```
+   r PATH //root
    + PATH //include
    - PATH //exclude
 ```
